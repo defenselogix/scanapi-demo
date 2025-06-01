@@ -7,7 +7,15 @@ API_KEY = os.environ.get("SCAN_API_KEY")
 def run_nmap(target, ports, flags):
     cmd = ["nmap", *flags.split(), "-p", ports, "-oJ", "-", target]
     result = subprocess.run(cmd, capture_output=True, text=True)
-    return json.loads(result.stdout)
+
+    # strip everything before the first '{'
+    stdout = result.stdout
+    idx = stdout.find("{")
+    if idx == -1:
+        raise RuntimeError("Nmap did not produce JSON:\n" + stdout + "\nstderr:\n" + result.stderr)
+    json_text = stdout[idx:]
+    return json.loads(json_text)
+
 
 @app.route("/scan", methods=["POST"])
 def scan():
