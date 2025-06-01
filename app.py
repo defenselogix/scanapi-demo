@@ -9,16 +9,18 @@ def run_nmap(target, ports, flags):
     result = subprocess.run(cmd, capture_output=True, text=True)
 
     stdout = result.stdout
-    # find the first “{” so we only parse the JSON part
+    # Find the first “{” and discard everything before it
     idx = stdout.find("{")
     if idx == -1:
-        # nothing looked like JSON, so fail loudly
+        # If there is no “{”, bail out with a helpful error 
         raise RuntimeError(
             "Nmap did not produce JSON:\n"
             + stdout
             + "\nstderr:\n"
             + result.stderr
         )
+
+    # Only load the JSON portion
     json_text = stdout[idx:]
     return json.loads(json_text)
 
