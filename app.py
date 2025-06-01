@@ -5,7 +5,7 @@ app = Flask(__name__)
 API_KEY = os.environ.get("SCAN_API_KEY")
 
 def run_nmap(target, ports, flags):
-    cmd = ["nmap", *flags.split(), "-p", ports, "-oJ-", "-", target]
+    cmd = ["nmap", *flags.split(), "-p", ports, "-oJ-", target]
     result = subprocess.run(cmd, capture_output=True, text=True)
 
     stdout = result.stdout
