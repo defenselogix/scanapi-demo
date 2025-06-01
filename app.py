@@ -8,14 +8,19 @@ def run_nmap(target, ports, flags):
     cmd = ["nmap", *flags.split(), "-p", ports, "-oJ", "-", target]
     result = subprocess.run(cmd, capture_output=True, text=True)
 
-    # strip everything before the first '{'
     stdout = result.stdout
+    # find the first “{” so we only parse the JSON part
     idx = stdout.find("{")
     if idx == -1:
-        raise RuntimeError("Nmap did not produce JSON:\n" + stdout + "\nstderr:\n" + result.stderr)
+        # nothing looked like JSON, so fail loudly
+        raise RuntimeError(
+            "Nmap did not produce JSON:\n"
+            + stdout
+            + "\nstderr:\n"
+            + result.stderr
+        )
     json_text = stdout[idx:]
     return json.loads(json_text)
-
 
 @app.route("/scan", methods=["POST"])
 def scan():
